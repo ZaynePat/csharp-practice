@@ -33,4 +33,4 @@ if (!won)
 {
     Console.WriteLine($"Sorry, you've run out of guesses. The correct number was: {SecretNum} ");
 }
-Console.WriteLine($"You made {attempts} attempts.");
+Console.WriteLine($"Attempts {attempts}.");
