@@ -5,13 +5,13 @@ class Program
     static void Main()
     {
         Console.WriteLine("Add first number: ");
-        if (!double.TryParse(Console.ReadLine(), out Double num1))
+        if (!double.TryParse(Console.ReadLine(), out double num1))
         {
             Console.WriteLine("Invalid input. Please enter a valid number.");
             return;
         }
         Console.WriteLine("Add second number: ");
-        if (!double.TryParse(Console.ReadLine(), out Double num2))
+        if (!double.TryParse(Console.ReadLine(), out double num2))
         {
             Console.WriteLine("Invalid input. Please enter a valid number.");
             return;
