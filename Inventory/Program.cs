@@ -6,7 +6,7 @@
 
     public void PrintInfo()
     {
-
+        Console.WriteLine($"{Name} , {Quantity}, {Price:N2}");
     }
     public void IsLowStocks()
     {
@@ -20,6 +20,7 @@ class Program
     static void Main(string[] args)
     {
         List<Product> products = new List<Product>();
+        Product product = new Product();
         Console.WriteLine("Hello Welcome to Inventory System");
         while (true)
         {
@@ -34,14 +35,7 @@ class Program
             }
             if (choice == "1") // ADD PRODUCT
             {
-                Console.WriteLine("Add a product: ");
-                string? NewItem = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(NewItem))
-                {
-                    Console.WriteLine("Please Dont leave the item blank");
-                    continue;
-                }
-
+                AddItem(products);
             }
             else if (choice == "2") // 2. Update quantity
             {
@@ -53,7 +47,7 @@ class Program
             }
             else if (choice == "4") // 4. Show all
             {
-                Console.WriteLine("Show all product: ");
+                ShowAll(products);
             }
             else if (choice == "5") // 5. Low-stock report
             {
@@ -71,9 +65,69 @@ class Program
         } // while
     }
 
-    public void AddItem(List<Product> products)
+    public static void AddItem(List<Product> products)
     {
-        
+        int quantity = 0;
+        decimal price = 0;
+        Console.Write("Add a product: ");
+        string? NewItem = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(NewItem))
+        {
+            Console.WriteLine("Please Dont leave the item blank");
+            return;
+        }
+        while (true)
+        {
+            Console.Write("Add Quantity: ");
+            if (!int.TryParse(Console.ReadLine(), out quantity))
+            {
+                Console.WriteLine("Please enter only quantity number");
+                continue;
+            }
+            if (quantity < 0)
+            {
+                Console.WriteLine("Please Enter only possitive numbers");
+                continue;
+            }
+            break;
+        }
+        while (true)
+        {
+            Console.Write("Enter the Price: ");
+            if (!decimal.TryParse(Console.ReadLine(), out price))
+            {
+                Console.WriteLine("Please enter only numbers");
+                continue;
+            }
+            if (price < 0)
+            {
+                Console.WriteLine("Please Enter only possitive numbers");
+                continue;
+            }
+            break;
+        }
+        Console.WriteLine($"Added new Item {NewItem}, with a Quantity of {quantity} , and a Price of {price}");
+        Product product = new Product();
+        NewItem = NewItem.Trim();
+        product.Name = NewItem;
+        product.Quantity = quantity;
+        product.Price = price;
+        products.Add(product);
+    }
+
+    static void ShowAll(List<Product> products)
+    {
+        Product product = new Product();
+        if (products.Count == 0)
+        {
+            Console.WriteLine("Empty.");
+            return;
+        }
+        for (int i = 0; i < products.Count; i++)
+        {
+            Console.Write($"{i + 1}. ");
+            products[i].PrintInfo();
+        }
     }
     public void UpdateItem(List<Product> products)
     {
