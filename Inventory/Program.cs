@@ -6,11 +6,11 @@
 
     public void PrintInfo()
     {
-        Console.WriteLine($"{Name} , {Quantity}, {Price:N2}");
+        Console.WriteLine($"{Name} - Qty: {Quantity} - Price: {Price:N2}");
     }
-    public void IsLowStocks()
+    public bool IsLowStocks()
     {
-
+        return Quantity <= 5;
     }
 
 }
@@ -20,7 +20,7 @@ class Program
     static void Main(string[] args)
     {
         List<Product> products = new List<Product>();
-        Product product = new Product();
+        //Product product = new Product();
         Console.WriteLine("Hello Welcome to Inventory System");
         while (true)
         {
@@ -39,11 +39,11 @@ class Program
             }
             else if (choice == "2") // 2. Update quantity
             {
-                Console.WriteLine("Update a product: ");
+                UpdateItem(products);
             }
             else if (choice == "3") // 3. Remove product
             {
-                Console.WriteLine("Remove a product: ");
+                RemoveItem(products);
             }
             else if (choice == "4") // 4. Show all
             {
@@ -51,7 +51,8 @@ class Program
             }
             else if (choice == "5") // 5. Low-stock report
             {
-                Console.WriteLine("Show all low-stock report: ");
+                LowStockReport(products);
+                //IsLowStocks()
             }
             else if (choice == "6") // 6. Quit
             {
@@ -76,6 +77,11 @@ class Program
             Console.WriteLine("Please Dont leave the item blank");
             return;
         }
+        if (FindProduct(products, NewItem.Trim()) != null)
+        {
+            Console.WriteLine("This Item already exist");
+            return;
+        }
         while (true)
         {
             Console.Write("Add Quantity: ");
@@ -86,7 +92,7 @@ class Program
             }
             if (quantity < 0)
             {
-                Console.WriteLine("Please Enter only possitive numbers");
+                Console.WriteLine("Please Enter only positive numbers");
                 continue;
             }
             break;
@@ -101,7 +107,7 @@ class Program
             }
             if (price < 0)
             {
-                Console.WriteLine("Please Enter only possitive numbers");
+                Console.WriteLine("Please Enter only positive numbers");
                 continue;
             }
             break;
@@ -117,7 +123,6 @@ class Program
 
     static void ShowAll(List<Product> products)
     {
-        Product product = new Product();
         if (products.Count == 0)
         {
             Console.WriteLine("Empty.");
@@ -129,12 +134,101 @@ class Program
             products[i].PrintInfo();
         }
     }
-    public void UpdateItem(List<Product> products)
+
+    static Product? FindProduct(List<Product> products, string name)
     {
+        for (int i = 0; i < products.Count; i++)
+        {
+            if (products[i].Name.ToLower() == name.ToLower())// if products[i].Name lowercase equals name lowercase
+            {
+                return products[i];
+            }
+        }
+        return null;
+    }
+    public static void UpdateItem(List<Product> products)
+    {
+        if (products.Count == 0)
+        {
+            Console.WriteLine("The inventory is empty");
+            return;
+        }
+        Console.Write("Which item do you want to update?: ");
+        string? name = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            Console.WriteLine("Please enter a product name.");
+            return;
+        }
+        Product? found = FindProduct(products, name.Trim());
+        if (found == null)
+        {
+            Console.WriteLine("Product not found");
+            return;
+        }
+        int quantity = 0;
+        while (true)
+        {
+            Console.Write("Add new Quantity: ");
+            if (!int.TryParse(Console.ReadLine(), out quantity))
+            {
+                Console.WriteLine("Please enter only quantity number");
+                continue;
+            }
+            if (quantity < 0)
+            {
+                Console.WriteLine("Please Enter only positive numbers");
+                continue;
+            }
+            break;
+        }
+        found.Quantity = quantity;
+        Console.WriteLine($"Updated an Item name: {found.Name}, Qty: {quantity}");
+
 
     }
-    public void RemoveItem(List<Product> products)
+    public static void RemoveItem(List<Product> products)
     {
-
+        if (products.Count == 0)
+        {
+            Console.WriteLine("The inventory is empty");
+            return;
+        }
+        Console.Write("Which item do you want to remove?: ");
+        string? name = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            Console.WriteLine("Please enter a product name.");
+            return;
+        }
+        Product? found = FindProduct(products, name.Trim());
+        if (found == null)
+        {
+            Console.WriteLine("Product not found");
+            return;
+        }
+        Console.WriteLine($"Item: {name} removed");
+        products.Remove(found);
+    }
+    static void LowStockReport(List<Product> products)
+    {
+        int lowCount = 0;
+        for (int i = 0; i < products.Count; i++)
+        {
+            if (products[i].IsLowStocks())
+            {
+                products[i].PrintInfo();
+                lowCount++;
+            }
+        }
+        if (lowCount == 0)
+        {
+            Console.WriteLine("No products are low on stock.");
+        }
+        if (products.Count == 0)
+        {
+            Console.WriteLine("The inventory is empty.");
+            return;
+        }
     }
 }
