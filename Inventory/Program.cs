@@ -20,7 +20,6 @@ class Program
     static void Main(string[] args)
     {
         List<Product> products = new List<Product>();
-        //Product product = new Product();
         Console.WriteLine("Hello Welcome to Inventory System");
         while (true)
         {
@@ -52,7 +51,6 @@ class Program
             else if (choice == "5") // 5. Low-stock report
             {
                 LowStockReport(products);
-                //IsLowStocks()
             }
             else if (choice == "6") // 6. Quit
             {
@@ -71,13 +69,13 @@ class Program
         int quantity = 0;
         decimal price = 0;
         Console.Write("Add a product: ");
-        string? NewItem = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(NewItem))
+        string? name = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(name))
         {
             Console.WriteLine("Please Dont leave the item blank");
             return;
         }
-        if (FindProduct(products, NewItem.Trim()) != null)
+        if (FindProduct(products, name.Trim()) != null)
         {
             Console.WriteLine("This Item already exist");
             return;
@@ -112,10 +110,10 @@ class Program
             }
             break;
         }
-        Console.WriteLine($"Added new Item {NewItem}, with a Quantity of {quantity} , and a Price of {price}");
+        Console.WriteLine($"Added new Item {name}, with a Quantity of {quantity} , and a Price of {price:N2}");
         Product product = new Product();
-        NewItem = NewItem.Trim();
-        product.Name = NewItem;
+        name = name.Trim();
+        product.Name = name;
         product.Quantity = quantity;
         product.Price = price;
         products.Add(product);
@@ -207,7 +205,7 @@ class Program
             Console.WriteLine("Product not found");
             return;
         }
-        Console.WriteLine($"Item: {name} removed");
+        Console.WriteLine($"Item: {found.Name} removed");
         products.Remove(found);
     }
     static void LowStockReport(List<Product> products)
@@ -221,14 +219,14 @@ class Program
                 lowCount++;
             }
         }
-        if (lowCount == 0)
-        {
-            Console.WriteLine("No products are low on stock.");
-        }
         if (products.Count == 0)
         {
             Console.WriteLine("The inventory is empty.");
             return;
+        }
+        if (lowCount == 0)
+        {
+            Console.WriteLine("No products are low on stock.");
         }
     }
 }
