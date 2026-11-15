@@ -1,4 +1,5 @@
-﻿class Product
+﻿using System.Globalization;
+class Product
 {
     public string Name { get; set; } = "";
     public int Quantity { get; set; }
@@ -19,7 +20,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        List<Product> products = new List<Product>();
+        List<Product> products = LoadProducts();
         Console.WriteLine("Hello Welcome to Inventory System");
         while (true)
         {
@@ -80,6 +81,11 @@ class Program
             Console.WriteLine("This Item already exist");
             return;
         }
+        if (name.Contains(','))
+        {
+            Console.WriteLine("Names can’t contain commas");
+            return;
+        }
         while (true)
         {
             Console.Write("Add Quantity: ");
@@ -117,6 +123,7 @@ class Program
         product.Quantity = quantity;
         product.Price = price;
         products.Add(product);
+        SaveProducts(products);
     }
 
     static void ShowAll(List<Product> products)
@@ -181,6 +188,7 @@ class Program
             break;
         }
         found.Quantity = quantity;
+        SaveProducts(products);
         Console.WriteLine($"Updated an Item name: {found.Name}, Qty: {quantity}");
 
 
@@ -207,6 +215,7 @@ class Program
         }
         Console.WriteLine($"Item: {found.Name} removed");
         products.Remove(found);
+        SaveProducts(products);
     }
     static void LowStockReport(List<Product> products)
     {
@@ -229,4 +238,64 @@ class Program
             Console.WriteLine("No products are low on stock.");
         }
     }
+
+    static void SaveProducts(List<Product> products)
+    {
+        List<string> lines = new List<string>();// 1. create a List<string> called lines
+        foreach (Product product in products)
+        {
+            string price = product.Price.ToString(CultureInfo.InvariantCulture);
+            string line = $"{product.Name},{product.Quantity},{price}";
+            lines.Add(line);
+        }
+        File.WriteAllLines("inventory.csv", lines);
+    }
+
+    static List<Product> LoadProducts()
+    {
+        List<Product> products = new List<Product>();
+
+        if (!File.Exists("inventory.csv"))
+        {
+            return products;
+        }
+
+        string[] lines = File.ReadAllLines("inventory.csv");
+
+        foreach(string line in lines)
+        {
+            Product? product = ParseProduct(line);
+            if(product != null)
+            {
+                products.Add(product);
+            }
+        }
+        return products;
+    }
+    static Product? ParseProduct(string line)
+    {
+        string[] parts = line.Split(',');
+        if (parts.Length != 3)
+        {
+            return null;
+        }
+        if (string.IsNullOrWhiteSpace(parts[0]))
+        {
+            return null;
+        }
+        if (!int.TryParse(parts[1], out int quantity) || quantity < 0)
+        {
+            return null;
+        }
+        if (!decimal.TryParse(parts[2], NumberStyles.Number, CultureInfo.InvariantCulture, out decimal price) || price < 0)
+        {
+            return null;
+        }
+        Product product = new Product();
+        product.Name = parts[0].Trim();
+        product.Quantity = quantity;
+        product.Price = price;
+        return product;
+    }
+
 }
