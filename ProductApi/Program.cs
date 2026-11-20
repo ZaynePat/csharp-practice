@@ -1,10 +1,11 @@
 using System.Globalization;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 List<Product> products = ProductStorage.Load();
 
-app.MapGet("/", () => "Product API is running");
 app.MapGet("/products", () => products);
 app.MapGet("/products/low", () =>
 {

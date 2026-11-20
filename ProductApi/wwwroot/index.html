@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inventory</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family:
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      body {
+        max-width: 40rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.5;
+      }
+
+      h1 {
+        margin-bottom: 0.25rem;
+      }
+
+      #message {
+        min-height: 1.5rem;
+        margin: 0 0 1rem;
+      }
+
+      .table-wrap {
+        overflow-x: auto; /* the table scrolls sideways on small screens */
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 0.6rem 0.75rem;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.4);
+        text-align: left;
+      }
+
+      th {
+        border-bottom-width: 2px;
+      }
+
+      /* numbers line up better when they are right-aligned */
+      th.num,
+      td.num {
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Inventory</h1>
+    <p id="message">Loading products...</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="num">Quantity</th>
+            <th class="num">Price</th>
+          </tr>
+        </thead>
+        <tbody id="product-rows"></tbody>
+      </table>
+    </div>
+
+    <h2>Add a product</h2>
+    <form id="add-form">
+      <p>
+        <label for="name">Name</label><br />
+        <input id="name" type="text" />
+      </p>
+      <p>
+        <label for="quantity">Quantity</label><br />
+        <input id="quantity" type="number" />
+      </p>
+      <p>
+        <label for="price">Price</label><br />
+        <input id="price" type="number" step="0.01" />
+      </p>
+      <button type="submit">Add product</button>
+    </form>
+    <p id="form-message"></p>
+
+    <script>
+            // Builds one table cell. textContent treats the value as plain text,
+            // so a product name that contains HTML can never run as code.
+            function makeCell(value, isNumber) {
+              const cell = document.createElement("td");
+              cell.textContent = value;
+              if (isNumber) {
+                cell.className = "num";
+              }
+              return cell;
+            }
+
+            async function loadProducts() {
+              const message = document.getElementById("message");
+              const tbody = document.getElementById("product-rows");
+
+              try {
+                // Ask the API for the products (GET /products)
+                const response = await fetch("/products");
+                if (!response.ok) {
+                  throw new Error("Server answered " + response.status);
+                }
+                const products = await response.json();
+
+                // Clear old rows so a reload never duplicates them
+                tbody.innerHTML = "";
+
+                if (products.length === 0) {
+                  message.textContent =
+                    "No products yet. Add one with POST /products.";
+                  return;
+                }
+
+                message.textContent = products.length + " product(s)";
+
+                // One table row per product
+                for (const product of products) {
+                  const row = document.createElement("tr");
+                  row.appendChild(makeCell(product.name, false));
+                  row.appendChild(makeCell(product.quantity, true));
+                  row.appendChild(makeCell(product.price.toFixed(2), true));
+                  tbody.appendChild(row);
+                }
+              } catch (error) {
+                console.error(error);
+                message.textContent =
+                  "Could not load products. Check that the server is running.";
+              }
+            }
+
+            loadProducts();
+
+      document.getElementById("add-form").addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const formMessage = document.getElementById("form-message");
+        formMessage.textContent = "";
+
+        const name = document.getElementById("name").value;
+        const quantity = Number(document.getElementById("quantity").value);
+        const price = Number(document.getElementById("price").value);
+
+        const response = await fetch("/products", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name, quantity: quantity, price: price })
+        });
+
+        if (response.ok) {
+          document.getElementById("name").value = "";
+          document.getElementById("quantity").value = "";
+          document.getElementById("price").value = "";
+          formMessage.textContent = "Product added.";
+          await loadProducts();
+        } else {
+          const data = await response.json();
+          if (typeof data === "string") {
+            formMessage.textContent = data;
+          } else {
+            formMessage.textContent = "The server rejected that product.";
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
