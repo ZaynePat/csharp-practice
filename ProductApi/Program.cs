@@ -167,5 +167,7 @@ static class ProductStorage
         product.Quantity = quantity;
         product.Price = price;
         return product;
+
+        //add the delete button tomorrow
     }
 }
