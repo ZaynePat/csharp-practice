@@ -9,6 +9,7 @@ A small REST API for managing a shop's product inventory, built with C# and ASP.
 - Update a product's quantity
 - Delete a product
 - Data is saved to `products.csv` after every change
+- You can now Add products in the web as I added HTML for frontend
 
 ## How to run
 
@@ -80,3 +81,4 @@ Minimal API routes (GET, POST, PUT, DELETE), request validation, returning HTTP 
 
 - A web page with a table and form to use the API
 - Replace the CSV file with a database
+- add more interactable pages such as DELETE AND PUT 
